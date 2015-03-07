@@ -1,0 +1,31 @@
+{
+  "name": "ht-sqs-transport",
+  "version": "1.0.0",
+  "description": "An Amazon SQS Hudson Taylor transport",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "node ./node_modules/babel/bin/babel src -d lib && node ./node_modules/babel/bin/babel test-src -d test",
+    "test": "npm run build && mocha -R spec --bail --check-leaks test/",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hudson-taylor/ht-sqs-transport.git"
+  },
+  "keywords": [
+    "ht",
+    "hudson-taylor",
+    "sqs",
+    "ht-transport"
+  ],
+  "author": "Adam Brady <adam@boxxen.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hudson-taylor/ht-sqs-transport/issues"
+  },
+  "homepage": "https://github.com/hudson-taylor/ht-sqs-transport",
+  "devDependencies": {
+    "babel": "^4.7.1",
+    "mocha": "^2.2.0"
+  }
+}
