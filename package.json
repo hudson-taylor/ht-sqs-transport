@@ -7,7 +7,8 @@
     "build": "node ./node_modules/babel/bin/babel src -d lib && node ./node_modules/babel/bin/babel test-src -d test",
     "test": "npm run build && mocha -R spec --bail --check-leaks test/",
     "prepublish": "npm run build",
-    "coverage": "npm run build && ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- --ui bdd --recursive -R spec -t 5000"
+    "coverage": "npm run build && ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- --ui bdd --recursive -R spec -t 5000",
+    "push-coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "async": "^0.9.0",
     "babel": "^4.7.1",
+    "coveralls": "^2.11.2",
     "ht-schema": "0.0.11",
     "hudson-taylor": "^2.4.1",
     "istanbul": "^0.3.7",
