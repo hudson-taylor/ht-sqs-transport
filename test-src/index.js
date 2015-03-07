@@ -77,6 +77,8 @@ describe("Hudson-Taylor SQS Transport", function() {
 
     it("correctly", function(done) {
 
+      this.timeout(20000);
+
       var str = "hello world!";
 
       var transport = new SQSTransport({
