@@ -13,19 +13,14 @@ describe("Hudson-Taylor SQS Transport", function() {
 
   let transport;
 
-  before(function() {
-
-    [ "ACCESS_KEY_ID", "SECRET_ACCESS_KEY", "REGION" ].forEach(function(required) {
-      if(!process.env[required]) throw new Error("Environment variable " + required + " is required for running the tests.");
-    });
-
-  });
-
   describe("Transport", function() {
 
     it("should create transport instance", function() {
 
-      transport = new SQSTransport();
+      transport = new SQSTransport({
+        region: 'ap-southeast-2',
+        queueUrl: 'https://sqs.ap-southeast-2.amazonaws.com/ID/NAME',
+      });
 
       assert.equal(transport instanceof SQSTransport, true);
 
@@ -82,7 +77,8 @@ describe("Hudson-Taylor SQS Transport", function() {
       var str = "hello world!";
 
       var transport = new SQSTransport({
-        queueName: "ht-sqs-transport-test-queue"
+        region: 'ap-southeast-2',
+        queueUrl: 'https://sqs.ap-southeast-2.amazonaws.com/ID/NAME',
       });
 
       var service = new ht.Service(transport);
@@ -90,7 +86,10 @@ describe("Hudson-Taylor SQS Transport", function() {
         s: transport
       });
 
-      service.on("echo", s.String(), (data, callback) => callback(null, data));
+      service.on("echo", s.String(), function(data, callback) {
+        assert.equal({}, data)
+        callback(null, data)
+      });
 
       client.call("s", "echo", str, function(err, response) {
         assert.ifError(err);

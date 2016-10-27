@@ -84,8 +84,8 @@ function SQSTransportClient(config, queue) {
       QueueUrl: config.queueUrl
     };
 
-    queue.sendMessage(params, function(err, data) {
-        return callback(err, data)
+    queue.sendMessage(params, function(err, response) {
+      return callback(err, data)
     });
   };
 
