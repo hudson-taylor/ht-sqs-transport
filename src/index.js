@@ -1,32 +1,47 @@
-
-"use strict";
-
-const sqs  = require("sqs");
+const AWS = require('aws-sdk');
 const uid2 = require("uid2");
 
 function SQSTransportServer(config, queue) {
 
   let _SQSTransportServer = function(fn) {
+    var params = {
+      AttributeNames: [ "All" ],
+      VisibilityTimeout: config.visibilityTimeout,
+      MaxNumberOfMessages: 1,
+      QueueUrl: config.queueUrl,
+      WaitTimeSeconds: 20
+    };
 
-    queue.pull(config.queueName, function(message, callback) {
+    queue.receiveMessage(params, function(err, response) {
+      if (err) {
+        console.log(err)
+        return
+      }
 
-      let response           = JSON.parse(message);
-      let { id, name, data } = response;
+      if (response.Messages) {
+        let message = response.Messages[0];
 
-      fn(name, data, function(error, data) {
+        let { id, name, data } = JSON.parse(message.Body);
 
-        let response = {
-          data,
-          id,
-          error
-        };
+        fn(name, data, function(error, data) {
+          if (error) {
+            // don't delete the message if there was an error in processing
+            return
+          }
 
-        queue.push(config.queueName + "-" + id, response, callback);
+          var params = {
+            QueueUrl: config.queueUrl,
+            ReceiptHandle: message.ReceiptHandle
+          };
 
-      });
-
-    });
-
+          queue.deleteMessage(params, function(err, data) {
+            if (err) {
+              console.log(err)
+            }
+          });
+        });
+      }
+    })
   };
 
   _SQSTransportServer.prototype.listen = function(done) {
@@ -56,7 +71,6 @@ function SQSTransportClient(config, queue) {
   };
 
   _SQSTransportClient.prototype.call = function(name, data, callback) {
-
     let id = uid2(10);
 
     let request = JSON.stringify({
@@ -65,20 +79,14 @@ function SQSTransportClient(config, queue) {
       id
     });
 
-    let responseQueue = config.queueName + "-" + id;
+    let params = {
+      MessageBody: request,
+      QueueUrl: config.queueUrl
+    };
 
-    queue.push(config.queueName, request, function() {
-
-      queue.pull(responseQueue, function(response) {
-
-        let { id, error, data } = response;
-
-        return callback(error, data);
-
-      });
-
+    queue.sendMessage(params, function(err, data) {
+        return callback(err, data)
     });
-
   };
 
   return _SQSTransportClient;
@@ -86,23 +94,11 @@ function SQSTransportClient(config, queue) {
 }
 
 function SQSTransport(config) {
-
-  if(!config) { config = { aws: {} } };
-  if(!config.aws) config.aws = {};
-
-  let awsConfig = {
-    access: config.aws.ACCESS_KEY_ID     || process.env.ACCESS_KEY_ID,
-    secret: config.aws.SECRET_ACCESS_KEY || process.env.SECRET_ACCESS_KEY,
-    region: config.aws.REGION            || process.env.REGION
-  };
-
-  let queue = sqs(awsConfig);
-
-  config.queueName = config.queueName || "ht-" + Math.floor(Math.random()*1000000);
+  AWS.config.update({region: config.region});
+  let queue = new AWS.SQS();
 
   this.Server = SQSTransportServer(config, queue);
   this.Client = SQSTransportClient(config, queue);
-
 }
 
 export default SQSTransport;
