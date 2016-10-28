@@ -19,7 +19,7 @@ describe("Hudson-Taylor SQS Transport", function() {
 
       transport = new SQSTransport({
         region: 'ap-southeast-2',
-        queueUrl: 'https://sqs.ap-southeast-2.amazonaws.com/ID/NAME',
+        queueName: 'ht-queue-test-1234',
       });
 
       assert.equal(transport instanceof SQSTransport, true);
@@ -57,14 +57,14 @@ describe("Hudson-Taylor SQS Transport", function() {
       assert.equal(client instanceof transport.Client, true);
     });
 
-    it("should provide required functions", function(done) {
-
-      async.series([
-        client.connect,
-        client.disconnect
-      ], done);
-
-    });
+    // it("should provide required functions", function(done) {
+    //
+    //   async.series([
+    //     client.connect,
+    //     client.disconnect
+    //   ], done);
+    //
+    // });
 
   });
 
@@ -78,7 +78,7 @@ describe("Hudson-Taylor SQS Transport", function() {
 
       var transport = new SQSTransport({
         region: 'ap-southeast-2',
-        queueUrl: 'https://sqs.ap-southeast-2.amazonaws.com/ID/NAME',
+        queueName: 'ht-queue-test-xyz'
       });
 
       var service = new ht.Service(transport);
@@ -86,17 +86,18 @@ describe("Hudson-Taylor SQS Transport", function() {
         s: transport
       });
 
+      client.connect(function() {
+        client.call("s", "echo", str, function(err, response) {
+          assert.ifError(err);
+          assert.equal(response, str);
+          done();
+        });
+      });
+
       service.on("echo", s.String(), function(data, callback) {
         assert.equal({}, data)
         callback(null, data)
       });
-
-      client.call("s", "echo", str, function(err, response) {
-        assert.ifError(err);
-        assert.equal(response, str);
-        done();
-      });
-
     });
 
   });

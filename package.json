@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.6.12",
+    "sqs-consumer": "^3.3.0",
     "uid2": "0.0.3"
   }
 }
