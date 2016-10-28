@@ -82,6 +82,11 @@ function SQSTransportClient(config, queue) {
 
 function SQSTransport(config) {
   AWS.config.update({region: config.region});
+
+  if (config.accessKeyId && config.secretAccessKey) {
+    AWS.config.update({accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey});
+  }
+
   let queue = new AWS.SQS();
 
   this.Server = SQSTransportServer(config, queue);
