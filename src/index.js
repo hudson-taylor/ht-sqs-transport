@@ -11,12 +11,14 @@ function SQSTransportServer(config, sqs) {
   };
 
   _SQSTransportServer.prototype.listen = function(done) {
+    let that = this;
     findOrCreateQueue(sqs, config.queueName, function(err, queueUrl) {
       consumer = SqsConsumer.create({
         queueUrl: queueUrl,
         handleMessage: function (message, done) {
-          console.log(message)
-          done();
+          let response = JSON.parse(message.Body)
+          let { id, name, data } = response
+          that.fn(name, data, done)
         }
       });
 
