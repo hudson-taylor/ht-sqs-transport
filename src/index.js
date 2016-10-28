@@ -14,6 +14,7 @@ function SQSTransportServer(config, sqs) {
     let that = this;
     findOrCreateQueue(sqs, config.queueName, function(err, queueUrl) {
       consumer = SqsConsumer.create({
+        sqs: sqs,
         queueUrl: queueUrl,
         handleMessage: function (message, done) {
           let response = JSON.parse(message.Body)
