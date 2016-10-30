@@ -1,6 +1,6 @@
 {
   "name": "ht-sqs-transport",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An Amazon SQS Hudson Taylor transport",
   "main": "lib/index.js",
   "scripts": {

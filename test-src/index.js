@@ -3,11 +3,12 @@
 
 const assert = require("assert");
 
-const ht    = require("hudson-taylor");
-const s     = require("ht-schema");
+const ht = require("hudson-taylor");
+const s = require("ht-schema");
 const async = require("async");
 
 const SQSTransport = require("../lib");
+const findOrCreateQueue = require('../lib/findOrCreateQueue');
 
 describe("Hudson-Taylor SQS Transport", function() {
 
@@ -57,15 +58,68 @@ describe("Hudson-Taylor SQS Transport", function() {
       assert.equal(client instanceof transport.Client, true);
     });
 
-    // it("should provide required functions", function(done) {
-    //
-    //   async.series([
-    //     client.connect,
-    //     client.disconnect
-    //   ], done);
-    //
-    // });
+    it("should provide required functions", function(done) {
 
+      async.series([
+        client.connect,
+        client.disconnect
+      ], done);
+
+    });
+
+  });
+
+  describe("Queue Management", function () {
+    describe("Queue exists", function () {
+      let sqs;
+
+      before(function () {
+        function listQueues(params, callback) {
+          callback(null, { QueueUrls: ['my-queue-url'] });
+        }
+
+        sqs = function() {
+          return {
+            listQueues: listQueues
+          }
+        }();
+      });
+
+      it("should find a queue" , function (done) {
+        findOrCreateQueue(sqs, 'myQueue', function (err, queueUrl) {
+          assert.equal(queueUrl, 'my-queue-url');
+          done();
+        });
+      });
+    });
+
+    describe("Queue does not exist", function () {
+      let sqs;
+
+      before(function () {
+        function listQueues(params, callback) {
+          callback(null, { QueueUrls: [] });
+        }
+
+        function createQueue(params, callback) {
+          callback(null, { QueueUrl: 'my-created-queue-url' });
+        }
+
+        sqs = function() {
+          return {
+            listQueues: listQueues,
+            createQueue: createQueue
+          }
+        }();
+      });
+
+      it("should create a non existing queue", function (done) {
+        findOrCreateQueue(sqs, 'myQueue', function (err, queueUrl) {
+          assert.equal(queueUrl, 'my-created-queue-url');
+          done();
+        });
+      });
+    });
   });
 
   describe("Should work", function() {
