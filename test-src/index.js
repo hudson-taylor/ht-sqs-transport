@@ -86,7 +86,7 @@ describe("Hudson-Taylor SQS Transport", function() {
       });
 
       it("should find a queue" , function (done) {
-        findOrCreateQueue(sqs, 'myQueue', function (err, queueUrl) {
+        findOrCreateQueue(sqs, 'myQueue', null, function (err, queueUrl) {
           assert.equal(queueUrl, 'my-queue-url');
           done();
         });
@@ -105,16 +105,28 @@ describe("Hudson-Taylor SQS Transport", function() {
           callback(null, { QueueUrl: 'my-created-queue-url' });
         }
 
+        function getQueueAttributes(params, callback) {
+          callback(null, { Attributes: { QueueArn: 'my-queue-arn' } });
+        }
+
         sqs = function() {
           return {
             listQueues: listQueues,
-            createQueue: createQueue
+            createQueue: createQueue,
+            getQueueAttributes: getQueueAttributes
           }
         }();
       });
 
-      it("should create a non existing queue", function (done) {
-        findOrCreateQueue(sqs, 'myQueue', function (err, queueUrl) {
+      it("should create a queue", function (done) {
+        findOrCreateQueue(sqs, 'myQueue', null, function (err, queueUrl) {
+          assert.equal(queueUrl, 'my-created-queue-url');
+          done();
+        });
+      });
+
+      it("should create a dead letter queue", function (done) {
+        findOrCreateQueue(sqs, 'myQueue', 100, function (err, queueUrl) {
           assert.equal(queueUrl, 'my-created-queue-url');
           done();
         });

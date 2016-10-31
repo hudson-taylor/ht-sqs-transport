@@ -12,7 +12,7 @@ function SQSTransportServer(config, sqs) {
 
   _SQSTransportServer.prototype.listen = function(done) {
     let that = this;
-    findOrCreateQueue(sqs, config.queueName, function(err, queueUrl) {
+    findOrCreateQueue(sqs, config.queueName, config.maxReceiveCount, function(err, queueUrl) {
       consumer = SqsConsumer.create({
         sqs: sqs,
         queueUrl: queueUrl,
@@ -48,7 +48,7 @@ function SQSTransportClient(config, queue) {
   };
 
   _SQSTransportClient.prototype.connect = function(done) {
-    findOrCreateQueue(queue, config.queueName, function (err, queueUrl) {
+    findOrCreateQueue(queue, config.queueName, config.maxReceiveCount, function (err, queueUrl) {
       config.queueUrl = queueUrl;
       done(err)
     });
