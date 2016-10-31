@@ -35,7 +35,7 @@ function getQueueARN(sqs, queueUrl, callback) {
 }
 
 function createDeadLetterQueue(sqs, queueName, callback) {
-  createQueue(sqs, queueName + "-dead-queue", function (err, queueUrl) {
+  createQueue(sqs, queueName + "-dead", function (err, queueUrl) {
     if (err) {
       return callback(err);
     }
