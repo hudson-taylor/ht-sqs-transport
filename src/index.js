@@ -16,6 +16,7 @@ function SQSTransportServer(config, sqs) {
       consumer = SqsConsumer.create({
         sqs: sqs,
         queueUrl: queueUrl,
+        visibilityTimeout: config.visibilityTimeout,
         handleMessage: function (message, done) {
           let response = JSON.parse(message.Body)
           let { id, name, data } = response
