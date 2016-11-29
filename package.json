@@ -1,10 +1,10 @@
 {
   "name": "ht-sqs-transport",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "An Amazon SQS Hudson Taylor transport",
   "main": "lib/index.js",
   "scripts": {
-    "build": "node ./node_modules/babel/bin/babel src -d lib && node ./node_modules/babel/bin/babel test-src -d test",
+    "build": "babel src -d lib && babel test-src -d test",
     "test": "npm run build && mocha -R spec --bail --check-leaks test/",
     "prepublish": "npm run build",
     "coverage": "npm run build && ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- --ui bdd --recursive -R spec -t 5000",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hudson-taylor/ht-sqs-transport.git"
+    "url": "https://github.com/chobomuffin/ht-sqs-transport.git"
   },
   "keywords": [
     "ht",
@@ -23,20 +23,26 @@
   "author": "Adam Brady <adam@boxxen.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hudson-taylor/ht-sqs-transport/issues"
+    "url": "https://github.com/chobomuffin/ht-sqs-transport/issues"
   },
-  "homepage": "https://github.com/hudson-taylor/ht-sqs-transport",
+  "homepage": "https://github.com/chobomuffin/ht-sqs-transport",
   "devDependencies": {
     "async": "^0.9.0",
-    "babel": "^4.7.1",
+    "aws-sdk-mock": "^1.6.1",
+    "babel-cli": "^6.18.0",
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-register": "^6.5.2",
     "coveralls": "^2.11.2",
     "ht-schema": "0.0.11",
     "hudson-taylor": "^2.4.1",
     "istanbul": "^0.3.7",
-    "mocha": "^2.2.0"
+    "mocha": "^2.2.0",
+    "proxyquire": "^1.7.10"
   },
   "dependencies": {
-    "sqs": "^1.2.0",
+    "aws-sdk": "^2.6.12",
+    "sqs-consumer": "^3.3.0",
     "uid2": "0.0.3"
   }
 }
