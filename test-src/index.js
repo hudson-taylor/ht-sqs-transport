@@ -1,14 +1,20 @@
+const assert = require('assert');
 
-"use strict";
-
-const assert = require("assert");
-
-const ht = require("hudson-taylor");
-const s = require("ht-schema");
-const async = require("async");
-
-const SQSTransport = require("../lib");
+const ht = require('hudson-taylor');
+const s = require('ht-schema');
+const async = require('async');
+const AWS = require('aws-sdk-mock');
+const proxyquire =  require('proxyquire');
+const SQSTransport = proxyquire('../lib', { 'sqs-consumer': {} });
 const findOrCreateQueue = require('../lib/findOrCreateQueue');
+
+AWS.mock('SQS', 'listQueues', function (params, callback) {
+  callback(null, { QueueUrls: ['my-queue-url'] });
+});
+
+AWS.mock('SQS', 'sendMessage', function (params, callback) {
+  callback(null, params);
+});
 
 describe("Hudson-Taylor SQS Transport", function() {
 
@@ -32,6 +38,12 @@ describe("Hudson-Taylor SQS Transport", function() {
   describe("Server", function() {
 
     let server;
+
+    before(function () {
+      AWS.mock('SQS', 'listQueues', function (params, callback){
+        callback(null, { QueueUrls: ['queueUrl'] });
+      });
+    });
 
     it("should have created server", function() {
       server = new transport.Server();
